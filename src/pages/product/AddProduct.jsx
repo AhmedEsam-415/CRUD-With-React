@@ -7,7 +7,9 @@ export const AddProduct = () => {
   const [price, setPrice] = useState(0);
   const [description, setDescription] = useState('');
 
+  // DB With json Server
   const apiUrl = import.meta.env.VITE_API_URL;
+
   let navegat = useNavigate();
 
   const formSubmet = (e) => {
