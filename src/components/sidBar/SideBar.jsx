@@ -10,7 +10,7 @@ export const SideBar = () => {
           </NavLink>
         </li>
         <li>
-          <a href="#">Get All Categories</a>
+          <NavLink to={'/users'}>Get All Users</NavLink>
         </li>
       </nav>
     </>

@@ -17,12 +17,18 @@ import { AddProduct } from './pages/product/AddProduct.jsx';
 import { ViewProduct } from './pages/product/ViewProduct.jsx';
 import { EditProduct } from './pages/product/EditProduct.jsx';
 
+import { AllUsers } from './pages/users/AllUsers.jsx';
+import { AddUser } from './pages/users/AddUser.jsx';
+import { ViewUser } from './pages/users/ViewUser.jsx';
+import { EditUser } from './pages/users/EditUser.jsx';
+
 let router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
     children: [
       { index: true, element: <Home /> },
+
       {
         path: 'products',
         children: [
@@ -30,6 +36,16 @@ let router = createBrowserRouter([
           { path: 'add', element: <AddProduct /> },
           { path: ':productId', element: <ViewProduct /> },
           { path: 'edit/:productId', element: <EditProduct /> },
+        ],
+      },
+
+      {
+        path: 'users',
+        children: [
+          { index: true, element: <AllUsers /> },
+          { path: 'add', element: <AddUser /> },
+          { path: ':userId', element: <ViewUser /> },
+          { path: 'edit/:userId', element: <EditUser /> },
         ],
       },
     ],
