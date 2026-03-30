@@ -1,43 +1,61 @@
-import axios from 'axios';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import axios from 'axios';
 import Swal from 'sweetalert2';
 
 export const EditProduct = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
-
-  const { productId } = useParams();
-  const [product, setProduct] = useState({});
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  const { productId } = useParams();
+  const [product, setProduct] = useState({
+    title: '',
+    price: '',
+    description: '',
+  });
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['product', productId],
+    queryFn: () =>
+      axios.get(`${apiUrl}/products/${productId}`).then((res) => res.data),
+  });
+
   useEffect(() => {
-    axios
-      .get(`${apiUrl}/products/${productId}`)
-      .then((res) => setProduct(res.data))
-      .catch((err) => console.log(err));
-  }, [productId, apiUrl]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (data) setProduct(data);
+  }, [data]);
+
+  const mutation = useMutation({
+    mutationFn: () => axios.patch(`${apiUrl}/products/${productId}`, product),
+    onSuccess: async () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      await Swal.fire({
+        title: 'Updated!',
+        icon: 'success',
+        draggable: true,
+      });
+      navigate('/products');
+    },
+    onError: (error) => {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Something went wrong while updating.',
+        icon: 'error',
+      });
+      console.error('Mutation Error:', error);
+    },
+  });
 
   const formSubmet = (e) => {
     e.preventDefault();
-
-    axios
-      .put(`${apiUrl}/products/${productId}`, {
-        title: product.title,
-        price: product.price,
-        description: product.description,
-        category: product.category,
-      })
-      .then(() =>
-        Swal.fire({
-          title: 'Drag me!',
-          icon: 'success',
-          draggable: true,
-        })
-      )
-      .catch((err) => console.log(err));
-
-    navigate('/products');
+    mutation.mutate();
   };
+
+  if (isLoading) return <h2>Loading...</h2>;
+  if (isError) return <h2>Error loading product</h2>;
 
   return (
     <>
@@ -88,25 +106,6 @@ export const EditProduct = () => {
             aria-describedby="emailHelp"
           />
         </div>
-
-        {product.category && (
-          <div className="mb-3">
-            <label htmlFor="productcategory" className="form-label">
-              category
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="productcategory"
-              value={product.category}
-              onChange={(e) =>
-                setProduct({ ...product, category: e.target.value })
-              }
-              placeholder="Product Category"
-              aria-describedby="emailHelp"
-            />
-          </div>
-        )}
 
         <button type="submit" className="btn btn-primary">
           Update Product

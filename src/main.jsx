@@ -10,6 +10,9 @@ import '../node_modules/bootstrap/dist/js/bootstrap.min.js';
 // React Router Dom
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
+// Query Client
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 // Pages
 import { Home } from './pages/home/Home.jsx';
 import { Products } from './pages/product/Products.jsx';
@@ -52,8 +55,16 @@ let router = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  <QueryClientProvider client={queryClient}>
     <RouterProvider router={router} />
-  </StrictMode>
+  </QueryClientProvider>
 );

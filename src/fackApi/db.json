@@ -1,0 +1,11 @@
+{
+  "products": [
+    {
+      "title": "Gold",
+      "price": "12346.34",
+      "description": "Gold is Old but Is Gold",
+      "id": "E2X1crj6GvM"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

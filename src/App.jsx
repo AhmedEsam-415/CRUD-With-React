@@ -9,7 +9,6 @@ function App() {
   return (
     <>
       <Navbar />
-
       <div className="row">
         <div className="col-2 sidebar">
           <SideBar />

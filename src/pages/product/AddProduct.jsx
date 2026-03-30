@@ -1,27 +1,39 @@
-import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 export const AddProduct = () => {
-  const [title, setTitle] = useState('');
-  const [price, setPrice] = useState(0);
-  const [description, setDescription] = useState('');
-
   // DB With json Server
   const apiUrl = import.meta.env.VITE_API_URL;
+  const queryClient = useQueryClient();
+
+  const [title, setTitle] = useState('');
+  const [price, setPrice] = useState('');
+  const [description, setDescription] = useState('');
 
   let navegat = useNavigate();
+
+  const mutation = useMutation({
+    mutationFn: () => {
+      axios
+        .post(`${apiUrl}/products`, {
+          title,
+          price,
+          description,
+        })
+        .then((res) => res.data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      navegat('/products');
+    },
+  });
 
   const formSubmet = (e) => {
     e.preventDefault();
 
-    axios
-      .post(`${apiUrl}/products`, {
-        title,
-        price,
-        description,
-      })
-      .then(() => navegat('/products'));
+    mutation.mutate();
   };
 
   return (
