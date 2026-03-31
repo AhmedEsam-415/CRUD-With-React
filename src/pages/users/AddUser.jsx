@@ -1,28 +1,34 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const AddUser = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const navigation = useNavigate();
+
+  const [userAdd, setUserAdd] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    role: '',
+  });
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      axios.post('http://localhost:5000/api/users/register', userAdd),
+    onSuccess: () => {
+      queryClient.invalidateQueries('users');
+      navigate('/users');
+    },
+  });
 
   const formSubmit = (e) => {
     e.preventDefault();
 
-    axios
-      .post('http://localhost:5000/api/users/register', {
-        firstName,
-        lastName,
-        email,
-        role,
-        password,
-      })
-      .then(() => navigate('/users'))
-      .catch((err) => console.log(err));
+    mutation.mutate();
   };
 
   return (
@@ -40,7 +46,9 @@ export const AddUser = () => {
             id="firstName"
             placeholder="First Name"
             aria-describedby="emailHelp"
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={(e) =>
+              setUserAdd({ ...userAdd, firstName: e.target.value })
+            }
           />
         </div>
 
@@ -54,7 +62,9 @@ export const AddUser = () => {
             id="lastName"
             placeholder="Last Name"
             aria-describedby="emailHelp"
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={(e) =>
+              setUserAdd({ ...userAdd, lastName: e.target.value })
+            }
           />
         </div>
 
@@ -68,7 +78,7 @@ export const AddUser = () => {
             id="email"
             placeholder="Email"
             aria-describedby="emailHelp"
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setUserAdd({ ...userAdd, email: e.target.value })}
           />
         </div>
 
@@ -82,7 +92,9 @@ export const AddUser = () => {
             id="password"
             placeholder="Password"
             aria-describedby="emailHelp"
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) =>
+              setUserAdd({ ...userAdd, password: e.target.value })
+            }
           />
         </div>
 
@@ -96,12 +108,18 @@ export const AddUser = () => {
             id="role"
             placeholder="role"
             aria-describedby="emailHelp"
-            onChange={(e) => setRole(e.target.value)}
+            onChange={(e) => setUserAdd({ ...userAdd, role: e.target.value })}
           />
         </div>
 
         <button type="submit" className="btn btn-primary">
           Add User
+        </button>
+        <button
+          onClick={() => navigation('/users')}
+          className="btn btn-secondary ms-2 hover:bg-red"
+        >
+          Back
         </button>
       </form>
     </>

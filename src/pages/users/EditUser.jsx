@@ -1,38 +1,57 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
+import axios from 'axios';
 import Swal from 'sweetalert2';
 
 export const EditUser = () => {
-  const [user, setUser] = useState({});
+  const [userEdit, setUserEdit] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    role: '',
+  });
+
   const { userId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['Users'],
+    queryFn: () =>
+      axios
+        .get(`http://localhost:5000/api/users/${userId}`)
+        .then((res) => res.data.data.user),
+  });
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/users/${userId}`)
-      .then((res) => setUser(res.data.data.user));
-  }, [userId]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (data) setUserEdit(data);
+  }, [data]);
 
-  const hendelSubmit = () => {
-    axios
-      .patch(`http://localhost:5000/api/users/${userId}`, {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-      })
-      .then(() =>
-        Swal.fire({
-          title: 'Drag me!',
-          icon: 'success',
-          draggable: true,
-        })
-      )
-      .catch((err) => console.log(err));
+  const mutation = useMutation({
+    mutationFn: () =>
+      axios.patch(`http://localhost:5000/api/users/${userId}`, userEdit),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ['Users'] });
 
-    navigate('/users');
+      await Swal.fire({
+        title: 'User Updated Successfully',
+        icon: 'success',
+        draggable: true,
+      });
+
+      navigate('/users');
+    },
+  });
+
+  const hendelSubmit = (e) => {
+    e.preventDefault();
+    mutation.mutate();
   };
+
+  if (isLoading) return <h1>Loading...</h1>;
 
   return (
     <>
@@ -47,8 +66,10 @@ export const EditUser = () => {
             type="text"
             className="form-control"
             id="userfirstName"
-            value={user.firstName}
-            onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+            value={userEdit.firstName}
+            onChange={(e) =>
+              setUserEdit({ ...userEdit, firstName: e.target.value })
+            }
           />
         </div>
 
@@ -61,8 +82,10 @@ export const EditUser = () => {
             className="form-control"
             id="userlastName"
             aria-describedby="emailHelp"
-            value={user.lastName}
-            onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+            value={userEdit.lastName}
+            onChange={(e) =>
+              setUserEdit({ ...userEdit, lastName: e.target.value })
+            }
           />
         </div>
 
@@ -74,9 +97,11 @@ export const EditUser = () => {
             type="text"
             className="form-control"
             id="userEmail"
-            value={user.email}
+            value={userEdit.email}
             aria-describedby="emailHelp"
-            onChange={(e) => setUser({ ...user, email: e.target.value })}
+            onChange={(e) =>
+              setUserEdit({ ...userEdit, email: e.target.value })
+            }
           />
         </div>
 
@@ -88,16 +113,22 @@ export const EditUser = () => {
             type="text"
             className="form-control"
             id="userRole"
-            value={user.role}
+            value={userEdit.role}
             placeholder="Product Category"
             aria-describedby="emailHelp"
-            onChange={(e) => setUser({ ...user, role: e.target.value })}
+            onChange={(e) => setUserEdit({ ...userEdit, role: e.target.value })}
           />
         </div>
 
         <button type="submit" className="btn btn-primary">
           Update User
         </button>
+        <div
+          onClick={() => navigate('/users')}
+          className="btn btn-secondary ms-2"
+        >
+          Back
+        </div>
       </form>
     </>
   );

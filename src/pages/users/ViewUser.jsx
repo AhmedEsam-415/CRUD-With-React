@@ -1,17 +1,19 @@
+import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const ViewUser = () => {
-  const [user, setUser] = useState({});
   const { userId } = useParams();
+  const navigation = useNavigate();
+  const { data, isLoading } = useQuery({
+    queryKey: ['Users'],
+    queryFn: () =>
+      axios
+        .get(`http://localhost:5000/api/users/${userId}`)
+        .then((res) => res.data.data.user),
+  });
 
-  useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/users/${userId}`)
-      .then((res) => setUser(res.data.data.user));
-  }, [userId]);
-
+  if (isLoading) return <h1>Loading...</h1>;
   return (
     <>
       <div>ViewUser</div>
@@ -25,7 +27,7 @@ export const ViewUser = () => {
             type="text"
             className="form-control"
             id="userfirstName"
-            value={user.firstName}
+            value={data.firstName}
           />
         </div>
 
@@ -37,7 +39,7 @@ export const ViewUser = () => {
             type="text"
             className="form-control"
             id="userlastName"
-            value={user.lastName}
+            value={data.lastName}
             aria-describedby="emailHelp"
           />
         </div>
@@ -50,7 +52,7 @@ export const ViewUser = () => {
             type="text"
             className="form-control"
             id="userEmail"
-            value={user.email}
+            value={data.email}
             aria-describedby="emailHelp"
           />
         </div>
@@ -63,11 +65,17 @@ export const ViewUser = () => {
             type="text"
             className="form-control"
             id="userRole"
-            value={user.role}
+            value={data.role}
             placeholder="Product Category"
             aria-describedby="emailHelp"
           />
         </div>
+        <button
+          onClick={() => navigation('/users')}
+          className="btn btn-secondary"
+        >
+          Back
+        </button>
       </form>
     </>
   );

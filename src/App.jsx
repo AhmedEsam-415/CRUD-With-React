@@ -1,6 +1,6 @@
 import './app.css';
-import { Navbar } from './components/NavBare/Navbar';
-import { SideBar } from './components/sidBar/SideBar';
+import { Navbar } from './components/Navbar';
+import { SideBar } from './components/SideBar';
 
 // Router
 import { Outlet } from 'react-router';

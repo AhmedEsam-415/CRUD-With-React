@@ -110,6 +110,12 @@ export const EditProduct = () => {
         <button type="submit" className="btn btn-primary">
           Update Product
         </button>
+        <div
+          onClick={() => navigate('/products')}
+          className="btn btn-secondary ms-2"
+        >
+          Back
+        </div>
       </form>
     </>
   );

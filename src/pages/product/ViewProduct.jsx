@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
@@ -6,7 +6,7 @@ export const ViewProduct = () => {
   //! The idea here in useParams
   let { productId } = useParams();
   const apiUrl = import.meta.env.VITE_API_URL;
-
+  const navegat = useNavigate();
   const { data, isLoading, error } = useQuery({
     queryKey: ['products', productId],
     queryFn: () =>
@@ -21,11 +21,19 @@ export const ViewProduct = () => {
       <h1>Product {productId}</h1>
       <br />
       {data ? (
-        <div>
-          <h1>{data.title}</h1>
-          <p>Price: {data.price}</p>
-          <p>description: {data.description}</p>
-        </div>
+        <>
+          <div>
+            <h1>{data.title}</h1>
+            <p>Price: {data.price}</p>
+            <p>description: {data.description}</p>
+          </div>
+          <div
+            onClick={() => navegat('/products')}
+            className="btn btn-secondary ms-2"
+          >
+            Back
+          </div>
+        </>
       ) : (
         <p>Product not found</p>
       )}

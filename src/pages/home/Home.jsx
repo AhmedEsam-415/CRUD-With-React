@@ -1,7 +1,9 @@
+import { Login } from '../../components/Login';
+
 export const Home = () => {
   return (
     <>
-      <h1>Home Page</h1>
+      <Login />
     </>
   );
 };

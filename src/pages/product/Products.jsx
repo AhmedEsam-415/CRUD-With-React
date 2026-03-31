@@ -9,6 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 export const Products = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const queryClient = useQueryClient();
+  const userRole = localStorage.getItem('role');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['products'],
@@ -19,8 +20,9 @@ export const Products = () => {
   });
 
   const mutation = useMutation({
-    mutationFn: async (product) =>
-      await axios.delete(`${apiUrl}/products/${product}`),
+    mutationFn: async (product) => {
+      await axios.delete(`${apiUrl}/products/${product}`);
+    },
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -55,9 +57,11 @@ export const Products = () => {
     <>
       <h1>Products Page</h1>
 
-      <NavLink to={'add'} end>
-        <button className="btn btn-success">Add New Product</button>
-      </NavLink>
+      {userRole === 'admin' && (
+        <NavLink to={'add'} end>
+          <button className="btn btn-success">Add New Product</button>
+        </NavLink>
+      )}
 
       <table className="table table-striped mt-5 products-table">
         <thead>
@@ -80,21 +84,27 @@ export const Products = () => {
                   <td>{item.description}...</td>
                   <td>{item.price}</td>
                   <td>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="btn btn-danger btn-sm"
-                    >
-                      Delete
-                    </button>
+                    {userRole === 'admin' && (
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="btn btn-danger btn-sm"
+                      >
+                        Delete
+                      </button>
+                    )}
+
                     <NavLink to={item.id} className="btn btn-info btn-sm mx-3">
                       view
                     </NavLink>
-                    <NavLink
-                      to={`edit/${item.id}`}
-                      className="btn btn-primary btn-sm"
-                    >
-                      Edit
-                    </NavLink>
+
+                    {userRole === 'admin' && (
+                      <NavLink
+                        to={`edit/${item.id}`}
+                        className="btn btn-primary btn-sm"
+                      >
+                        Edit
+                      </NavLink>
+                    )}
                   </td>
                 </tr>
               );

@@ -86,6 +86,10 @@ export const AddProduct = () => {
         <button type="submit" className="btn btn-primary">
           Add Product
         </button>
+
+        <div onClick={() => navegat('/products')} className="btn btn-secondary ms-2">
+          Back
+        </div>
       </form>
     </>
   );
